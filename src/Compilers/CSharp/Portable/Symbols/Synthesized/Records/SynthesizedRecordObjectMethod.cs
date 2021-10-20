@@ -2,7 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-#nullable enable
+using System.Diagnostics;
 
 namespace Microsoft.CodeAnalysis.CSharp.Symbols
 {
@@ -11,30 +11,56 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
     /// </summary>
     internal abstract class SynthesizedRecordObjectMethod : SynthesizedRecordOrdinaryMethod
     {
-        protected SynthesizedRecordObjectMethod(SourceMemberContainerTypeSymbol containingType, string name, int memberOffset, DiagnosticBag diagnostics)
-            : base(containingType, name, memberOffset, diagnostics)
+        protected SynthesizedRecordObjectMethod(SourceMemberContainerTypeSymbol containingType, string name, int memberOffset, bool isReadOnly, BindingDiagnosticBag diagnostics)
+            : base(containingType, name, isReadOnly: isReadOnly, hasBody: true, memberOffset, diagnostics)
         {
         }
 
-        protected sealed override void MethodChecks(DiagnosticBag diagnostics)
+        protected sealed override DeclarationModifiers MakeDeclarationModifiers(DeclarationModifiers allowedModifiers, BindingDiagnosticBag diagnostics)
+        {
+            const DeclarationModifiers result = DeclarationModifiers.Public | DeclarationModifiers.Override;
+            Debug.Assert((result & ~allowedModifiers) == 0);
+            return result;
+        }
+
+        protected sealed override void MethodChecks(BindingDiagnosticBag diagnostics)
         {
             base.MethodChecks(diagnostics);
+            VerifyOverridesMethodFromObject(this, OverriddenSpecialMember, diagnostics);
+        }
 
-            var overridden = OverriddenMethod?.OriginalDefinition;
+        protected abstract SpecialMember OverriddenSpecialMember { get; }
 
-            if (overridden is null || (overridden is SynthesizedRecordObjEquals && overridden.DeclaringCompilation == DeclaringCompilation))
+        /// <summary>
+        /// Returns true if reported an error
+        /// </summary>
+        internal static bool VerifyOverridesMethodFromObject(MethodSymbol overriding, SpecialMember overriddenSpecialMember, BindingDiagnosticBag diagnostics)
+        {
+            bool reportAnError = false;
+
+            if (!overriding.IsOverride)
             {
-                return;
+                reportAnError = true;
+            }
+            else
+            {
+                var overridden = overriding.OverriddenMethod?.OriginalDefinition;
+
+                if (overridden is object && !(overridden.ContainingType is SourceMemberContainerTypeSymbol { IsRecord: true } && overridden.ContainingModule == overriding.ContainingModule))
+                {
+                    MethodSymbol leastOverridden = overriding.GetLeastOverriddenMethod(accessingTypeOpt: null);
+
+                    reportAnError = (object)leastOverridden != overriding.ContainingAssembly.GetSpecialTypeMember(overriddenSpecialMember) &&
+                                    leastOverridden.ReturnType.Equals(overriding.ReturnType, TypeCompareKind.AllIgnoreOptions);
+                }
             }
 
-            MethodSymbol leastOverridden = GetLeastOverriddenMethod(accessingTypeOpt: null);
-
-            if (leastOverridden is object &&
-                leastOverridden.ReturnType.SpecialType == ReturnType.SpecialType &&
-                leastOverridden.ContainingType.SpecialType != SpecialType.System_Object)
+            if (reportAnError)
             {
-                diagnostics.Add(ErrorCode.ERR_DoesNotOverrideMethodFromObject, Locations[0], this);
+                diagnostics.Add(ErrorCode.ERR_DoesNotOverrideMethodFromObject, overriding.Locations[0], overriding);
             }
+
+            return reportAnError;
         }
     }
 }

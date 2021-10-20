@@ -6,26 +6,19 @@
     <RootNamespace>Microsoft.CodeAnalysis</RootNamespace>
     <AssemblyName>Aquila.Microsoft.CodeAnalysis</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <!--<TargetFrameworks>netcoreapp3.1;netstandard2.0</TargetFrameworks>-->
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;netstandard2.0</TargetFrameworks>
     <DefineConstants>$(DefineConstants);COMPILERCORE</DefineConstants>
     <CodeAnalysisRuleSet>..\CodeAnalysisRules.ruleset</CodeAnalysisRuleSet>
     <NoStdLib>true</NoStdLib>
-    <ApplyNgenOptimization Condition="'$(TargetFramework)' == 'netstandard2.0'">partial</ApplyNgenOptimization>
+    <ApplyNgenOptimization Condition="'$(TargetFramework)' == 'netstandard2.0'">full</ApplyNgenOptimization>
     <GeneratePerformanceSensitiveAttribute>true</GeneratePerformanceSensitiveAttribute>
-    
+
     <!-- NuGet -->
     <IsPackable>true</IsPackable>
     <PackageId>Aquila.Microsoft.CodeAnalysis</PackageId>
-    <PackageVersion>3.7.4</PackageVersion>
     <Authors>Microsoft, Aquila</Authors>
     <Description>Roslyn CodeAnalysis slightly modified to be used by Aquila.</Description>
     <PackageTags>aquila;dotnet;compiler;roslyn</PackageTags>
-<!--    <RepositoryUrl>https://github.com/iolevel/Peachpie.Microsoft.CodeAnalysis</RepositoryUrl>-->
-<!--    <PackageProjectUrl>https://github.com/iolevel/Peachpie.Microsoft.CodeAnalysis</PackageProjectUrl>-->
-
-    <!-- Strong name -->
-    <AssemblyVersion>$(PackageVersion).0</AssemblyVersion>
     <StrongNameKeyId>Open</StrongNameKeyId>
   </PropertyGroup>
   <ItemGroup>
@@ -59,6 +52,8 @@
     <InternalsVisibleTo Include="Microsoft.CodeAnalysis.VisualBasic.ExpressionEvaluator.ExpressionCompiler" />
     <InternalsVisibleTo Include="csc" />
     <InternalsVisibleTo Include="csi" />
+    <InternalsVisibleTo Include="BuildValidator" />
+    <InternalsVisibleTo Include="Microsoft.CodeAnalysis.Rebuild" />
     <InternalsVisibleTo Include="Microsoft.CodeAnalysis.Scripting" />
     <InternalsVisibleTo Include="Microsoft.CodeAnalysis.CSharp.Scripting" />
     <InternalsVisibleTo Include="Microsoft.CodeAnalysis.VisualBasic.Scripting" />
@@ -92,7 +87,8 @@
     <InternalsVisibleTo Include="Microsoft.CodeAnalysis.CSharp.Scripting.Desktop.UnitTests" />
     <InternalsVisibleTo Include="Microsoft.CodeAnalysis.VisualBasic.Scripting.UnitTests" />
     <InternalsVisibleTo Include="Microsoft.CodeAnalysis.VisualBasic.Scripting.Desktop.UnitTests" />
-    <InternalsVisibleTo Include="Roslyn.Test.Utilities" />
+    <InternalsVisibleTo Include="Microsoft.CodeAnalysis.Test.Utilities" />
+    <InternalsVisibleTo Include="Microsoft.CodeAnalysis.Rebuild.UnitTests" />
     <InternalsVisibleTo Include="Roslyn.Test.PdbUtilities" />
     <InternalsVisibleTo Include="VBCSCompiler.UnitTests" />
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" Key="$(MoqPublicKey)" LoadsWithinVisualStudio="false" />
@@ -115,4 +111,5 @@
   <Import Project="..\AnalyzerDriver\AnalyzerDriver.projitems" Label="Shared" />
   <Import Project="..\..\..\Dependencies\CodeAnalysis.Debugging\Microsoft.CodeAnalysis.Debugging.projitems" Label="Shared" />
   <Import Project="..\..\..\Dependencies\PooledObjects\Microsoft.CodeAnalysis.PooledObjects.projitems" Label="Shared" />
+  <Import Project="..\..\..\Dependencies\Collections\Microsoft.CodeAnalysis.Collections.projitems" Label="Shared" />
 </Project>

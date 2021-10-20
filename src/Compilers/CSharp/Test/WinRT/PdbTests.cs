@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+#nullable disable
+
 using System.IO;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Test.Utilities;
@@ -72,6 +74,38 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
 
             var c = CSharpCompilation.Create("a",
                 new[] { SyntaxFactory.ParseSyntaxTree("class C { static void Main() {} }") },
+                new[] { MscorlibRef });
+
+            var r = c.Emit(peStream, pdbStream);
+            r.Diagnostics.Verify();
+        }
+
+        [ClrOnlyFact(ClrOnlyReason.Pdb)]
+        public void EmitMyTest()
+        {
+            var pdbArray = new byte[100000];
+            var pdbStream = new MemoryStream(pdbArray, 1, pdbArray.Length - 10);
+
+            var peArray = new byte[100000];
+            var peStream = new MemoryStream(peArray);
+
+            var c = CSharpCompilation.Create("a",
+                new[] { SyntaxFactory.ParseSyntaxTree(
+@"
+using System; 
+class C 
+{ 
+
+public int a = 0;
+
+static void Main() 
+{
+    var d = 1;
+    var a = d;
+    var s = d.ToString();
+    
+} 
+}") },
                 new[] { MscorlibRef });
 
             var r = c.Emit(peStream, pdbStream);
