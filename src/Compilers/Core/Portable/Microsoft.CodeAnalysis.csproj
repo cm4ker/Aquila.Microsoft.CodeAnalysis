@@ -19,7 +19,6 @@
     <Authors>Microsoft, Aquila</Authors>
     <Description>Roslyn CodeAnalysis slightly modified to be used by Aquila.</Description>
     <PackageTags>aquila;dotnet;compiler;roslyn</PackageTags>
-    <StrongNameKeyId>Open</StrongNameKeyId>
   </PropertyGroup>
   <ItemGroup>
     <None Include="Operations\OperationInterfaces.xml" />
