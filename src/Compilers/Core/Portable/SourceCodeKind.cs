@@ -30,5 +30,10 @@ namespace Microsoft.CodeAnalysis
         [Obsolete("Use Script instead", error: false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         Interactive = 2,
+        
+        /// <summary>
+        /// The Aquila view code
+        /// </summary>
+        View = 3
     }
 }

@@ -16,6 +16,7 @@
     <!-- NuGet -->
     <IsPackable>true</IsPackable>
     <PackageId>Aquila.Microsoft.CodeAnalysis</PackageId>
+    <PackageVersion>4.2.2</PackageVersion>
     <Authors>Microsoft, Aquila</Authors>
     <Description>Roslyn CodeAnalysis slightly modified to be used by Aquila.</Description>
     <PackageTags>aquila;dotnet;compiler;roslyn</PackageTags>
